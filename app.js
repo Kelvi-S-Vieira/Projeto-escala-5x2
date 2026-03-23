@@ -18,7 +18,7 @@ const META_EXP_52 = [881191, 141479, 87258.72, 942870];
 // ── Produtividade por operador/hora ───────────────────────────
 const PROD_SEP = [300, 66, 150, 250];
 const PROD_REC = [856, 856, 856, 856];
-const PROD_EXP = [300, 66, 150, 250];
+const PROD_EXP = [300, 300, 300, 300];
 
 // ── Quadros padrão — Capacidade produtiva ────────────────────
 const QUADRO_CAP_SEP = [27, 17, 8, 11];
