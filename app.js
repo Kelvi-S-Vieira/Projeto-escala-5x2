@@ -101,8 +101,7 @@ function diffTable(id, setores, d61, d52) {
 }
 
 /* ── Render capacity table with editable quadro ──────────────── */
-function renderCapTable(id, prefix, setores, quadroDefault, prod, usaPack, hProd, pack) {
-  const colors  = ["b1", "b2", "b3", "b4"];
+function renderCapTable(id, prefix, setores, meta, quadroDefault, prod, usaPack, hProd, pack) {
   const already = !!document.getElementById(`cap-${prefix}-0`);
 
   const quadros = setores.map((_, i) => {
@@ -115,14 +114,24 @@ function renderCapTable(id, prefix, setores, quadroDefault, prod, usaPack, hProd
     const capDia = q * hProd * prod[i];
     const volSem = capDia * 5;
     const pecas  = usaPack[i] ? volSem * pack : volSem;
-    return { setor, q, capDia, volSem, pecas, i, color: colors[i] };
+    const diff   = pecas - meta[i];               // Peças/sem − Meta/sem
+    return { setor, q, capDia, volSem, pecas, diff, i };
   });
 
-  const maxPecas = Math.max(...rows.map(r => r.pecas));
   const totCap   = rows.reduce((a, r) => a + r.capDia, 0);
   const totVol   = rows.reduce((a, r) => a + r.volSem, 0);
   const totPecas = rows.reduce((a, r) => a + r.pecas, 0);
+  const totMeta  = meta.reduce((a, m) => a + m, 0);
+  const totDiff  = totPecas - totMeta;
   const totQ     = rows.reduce((a, r) => a + r.q, 0);
+
+  const diffCell = (diff, id) => {
+    const cls = diff > 0 ? "pos" : diff < 0 ? "neg" : "";
+    const val = `${diff > 0 ? "+" : ""}${fmt(diff)}`;
+    return id
+      ? `<td class="${cls}" id="${id}">${val}</td>`
+      : `<td class="${cls}">${val}</td>`;
+  };
 
   if (!already) {
     document.getElementById(id).innerHTML = `
@@ -130,7 +139,7 @@ function renderCapTable(id, prefix, setores, quadroDefault, prod, usaPack, hProd
         <thead><tr>
           <th>Setor</th><th>Quadro</th><th>H. produtivas</th>
           <th>Cap. diária</th><th>Vol. semanal</th><th>Peças/sem</th>
-          <th style="width:100px">Dist.</th>
+          <th>vs Meta</th>
         </tr></thead>
         <tbody>
           ${rows.map(r => `
@@ -143,12 +152,7 @@ function renderCapTable(id, prefix, setores, quadroDefault, prod, usaPack, hProd
               <td id="cap-dia-${prefix}-${r.i}">${fmt(r.capDia)}</td>
               <td id="cap-vol-${prefix}-${r.i}">${fmt(r.volSem)}</td>
               <td class="highlight" id="cap-pec-${prefix}-${r.i}">${fmt(r.pecas)}</td>
-              <td><div class="bar-track" style="height:12px">
-                <div class="bar-fill ${r.color}" id="cap-bar-${prefix}-${r.i}"
-                  style="width:${maxPecas>0?Math.round(r.pecas/maxPecas*100):0}%;font-size:9px;padding-left:4px">
-                  ${maxPecas>0?Math.round(r.pecas/maxPecas*100)+"%":""}
-                </div>
-              </div></td>
+              ${diffCell(r.diff, `cap-diff-${prefix}-${r.i}`)}
             </tr>`).join("")}
           <tr>
             <td>Total</td>
@@ -157,7 +161,7 @@ function renderCapTable(id, prefix, setores, quadroDefault, prod, usaPack, hProd
             <td id="cap-tot-dia-${prefix}">${fmt(totCap)}</td>
             <td id="cap-tot-vol-${prefix}">${fmt(totVol)}</td>
             <td id="cap-tot-pec-${prefix}">${fmt(totPecas)}</td>
-            <td></td>
+            ${diffCell(totDiff, `cap-tot-diff-${prefix}`)}
           </tr>
         </tbody>
       </table>`;
@@ -169,15 +173,17 @@ function renderCapTable(id, prefix, setores, quadroDefault, prod, usaPack, hProd
     document.getElementById(`cap-dia-${prefix}-${r.i}`).textContent   = fmt(r.capDia);
     document.getElementById(`cap-vol-${prefix}-${r.i}`).textContent   = fmt(r.volSem);
     document.getElementById(`cap-pec-${prefix}-${r.i}`).textContent   = fmt(r.pecas);
-    const bar = document.getElementById(`cap-bar-${prefix}-${r.i}`);
-    const pct = maxPecas > 0 ? Math.round(r.pecas / maxPecas * 100) : 0;
-    bar.style.width = pct + "%";
-    bar.textContent = pct + "%";
+    const dc  = document.getElementById(`cap-diff-${prefix}-${r.i}`);
+    dc.textContent  = `${r.diff > 0 ? "+" : ""}${fmt(r.diff)}`;
+    dc.className    = r.diff > 0 ? "pos" : r.diff < 0 ? "neg" : "";
   });
-  document.getElementById(`cap-tot-q-${prefix}`).textContent   = fmt(totQ);
-  document.getElementById(`cap-tot-dia-${prefix}`).textContent = fmt(totCap);
-  document.getElementById(`cap-tot-vol-${prefix}`).textContent = fmt(totVol);
-  document.getElementById(`cap-tot-pec-${prefix}`).textContent = fmt(totPecas);
+  document.getElementById(`cap-tot-q-${prefix}`).textContent     = fmt(totQ);
+  document.getElementById(`cap-tot-dia-${prefix}`).textContent   = fmt(totCap);
+  document.getElementById(`cap-tot-vol-${prefix}`).textContent   = fmt(totVol);
+  document.getElementById(`cap-tot-pec-${prefix}`).textContent   = fmt(totPecas);
+  const td = document.getElementById(`cap-tot-diff-${prefix}`);
+  td.textContent = `${totDiff > 0 ? "+" : ""}${fmt(totDiff)}`;
+  td.className   = totDiff > 0 ? "pos" : totDiff < 0 ? "neg" : "";
 }
 
 /* ── Recalc capacity only (triggered by quadro inputs) ────────── */
@@ -185,9 +191,9 @@ function recalcCap() {
   const carga = parseFloat(document.getElementById("in-carga").value) || 40;
   const pack  = parseFloat(document.getElementById("in-pack").value)  || 7.2;
   const hProd = (carga / 5) - 1.8;
-  renderCapTable("cap-sep", "sep", SETORES_SEP, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, pack, META_SEP_52);
-  renderCapTable("cap-rec", "rec", SETORES_REC, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, pack, META_REC_52);
-  renderCapTable("cap-exp", "exp", SETORES_EXP, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, pack, META_EXP_52);
+  renderCapTable("cap-sep", "sep", SETORES_SEP, META_SEP_52, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, pack);
+  renderCapTable("cap-rec", "rec", SETORES_REC, META_REC_52, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, pack);
+  renderCapTable("cap-exp", "exp", SETORES_EXP, META_EXP_52, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, pack);
   renderBars(hProd, pack);
 }
 
@@ -216,21 +222,17 @@ function renderBars(hProd, pack) {
 /* ── Render schedule ─────────────────────────────────────────── */
 function renderSched(carga, modelo) {
   const days = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-  const eq1  = modelo === "Segunda a Sexta" ? [1,1,1,1,1,0,0] : [1,1,1,1,1,1,0];
-  const eq2  = modelo === "Segunda a Sexta" ? [0,0,0,0,0,0,0] : [0,1,1,1,1,1,0];
+  // Equipe 1: sempre Seg–Sex, nunca trabalha Sáb ou Dom
+  const eq1 = [1, 1, 1, 1, 1, 0, 0];
+  // Equipe 2: Ter–Sáb no revezando; folga total no Seg–Sex
+  const eq2 = modelo === "Equipes revezando" ? [0, 1, 1, 1, 1, 1, 0] : [0, 0, 0, 0, 0, 0, 0];
   let html = "<div></div>";
   days.forEach(d => { html += `<div class="sched-head">${d}</div>`; });
   ["Equipe 1", "Equipe 2"].forEach((eq, ei) => {
     html += `<div class="sched-label">${eq}</div>`;
     (ei === 0 ? eq1 : eq2).forEach((v, di) => {
-      let cls;
-      if (di === 6) {
-        cls = "sched-cell weekend"; // Domingo: sempre cinza
-      } else if (di === 5) {
-        cls = v ? "sched-cell on" : "sched-cell saturday-off"; // Sábado: azul se trabalha, amarelo se não
-      } else {
-        cls = v ? "sched-cell on" : "sched-cell off-day"; // Seg-Sex: azul ou branco
-      }
+      // Sáb (di=5) e Dom (di=6) sem trabalho → sempre cinza (weekend)
+      const cls = v ? "sched-cell on" : (di >= 5 ? "sched-cell weekend" : "sched-cell off-day");
       html += `<div class="${cls}">${v ? fmth(carga / 5) : "—"}</div>`;
     });
   });
@@ -321,9 +323,9 @@ function recalc() {
   diffTable("tbl-diff-rec", SETORES_REC, r61, r52);
   diffTable("tbl-diff-exp", SETORES_EXP, e61, e52);
 
-  renderCapTable("cap-sep", "sep", SETORES_SEP, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, pack);
-  renderCapTable("cap-rec", "rec", SETORES_REC, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, pack);
-  renderCapTable("cap-exp", "exp", SETORES_EXP, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, pack);
+  renderCapTable("cap-sep", "sep", SETORES_SEP, META_SEP_52, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, pack);
+  renderCapTable("cap-rec", "rec", SETORES_REC, META_REC_52, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, pack);
+  renderCapTable("cap-exp", "exp", SETORES_EXP, META_EXP_52, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, pack);
   renderBars(hProd, pack);
 
   renderKPIs(s61, s52, r61, r52, e61, e52);

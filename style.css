@@ -370,7 +370,7 @@ tbody tr:last-child td {
 
 .sched-cell.on          { background: #D6E4F7; color: #0C447C; }
 .sched-cell.off-day     { background: #F7FAFC; color: #CBD5E0; }
-.sched-cell.saturday-off{ background: #FFF3CD; color: #856404; }
+
 .sched-cell.weekend     { background: #F1EFE8; color: #B4B2A9; }
 
 /* ── Produtividade panel ── */
