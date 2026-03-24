@@ -17,8 +17,13 @@ const META_EXP_52 = [881191, 141479, 87258.72, 942870];
 
 // ── Produtividade por operador/hora ───────────────────────────
 const PROD_SEP = [300, 66, 150, 250];
+<<<<<<< HEAD
 const PROD_REC = [856, 856, 856, 856];
 const PROD_EXP = [300, 300, 300, 300];
+=======
+const PROD_REC = [778, 1100, 778, 1200];
+const PROD_EXP = [300, 66, 150, 250];
+>>>>>>> b140342 (Atualização da prod recebimento)
 
 // ── Quadros padrão — Capacidade produtiva ────────────────────
 const QUADRO_CAP_SEP = [27, 17, 8, 11];
@@ -27,7 +32,7 @@ const QUADRO_CAP_EXP = [12, 2, 4, 13];
 
 // ── Uso de pack médio por área ────────────────────────────────
 const USA_PACK_SEP = [true, true, false, true];
-const USA_PACK_REC = [false, false, false, false];
+const USA_PACK_REC = [true, true, false, false];
 const USA_PACK_EXP = [true, true, false, true];
 
 /* ── Helpers ─────────────────────────────────────────────────── */
