@@ -17,13 +17,8 @@ const META_EXP_52 = [881191, 141479, 87258.72, 942870];
 
 // ── Produtividade por operador/hora ───────────────────────────
 const PROD_SEP = [300, 66, 150, 250];
-<<<<<<< HEAD
-const PROD_REC = [856, 856, 856, 856];
-const PROD_EXP = [300, 300, 300, 300];
-=======
 const PROD_REC = [778, 1100, 778, 1200];
 const PROD_EXP = [300, 66, 150, 250];
->>>>>>> b140342 (Atualização da prod recebimento)
 
 // ── Quadros padrão — Capacidade produtiva ────────────────────
 const QUADRO_CAP_SEP = [27, 17, 8, 11];
@@ -190,9 +185,9 @@ function recalcCap() {
   const carga = parseFloat(document.getElementById("in-carga").value) || 40;
   const pack  = parseFloat(document.getElementById("in-pack").value)  || 7.2;
   const hProd = (carga / 5) - 1.8;
-  renderCapTable("cap-sep", "sep", SETORES_SEP, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, pack);
-  renderCapTable("cap-rec", "rec", SETORES_REC, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, pack);
-  renderCapTable("cap-exp", "exp", SETORES_EXP, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, pack);
+  renderCapTable("cap-sep", "sep", SETORES_SEP, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, pack, META_SEP_52);
+  renderCapTable("cap-rec", "rec", SETORES_REC, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, pack, META_REC_52);
+  renderCapTable("cap-exp", "exp", SETORES_EXP, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, pack, META_EXP_52);
   renderBars(hProd, pack);
 }
 
