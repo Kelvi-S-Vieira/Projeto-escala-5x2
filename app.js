@@ -18,7 +18,7 @@ const META_EXP_52 = [881191, 141479, 87258.72, 942870];
 // ── Produtividade por operador/hora ───────────────────────────
 const PROD_SEP = [300, 66, 150, 250];
 const PROD_REC = [778, 1100, 778, 1200];
-const PROD_EXP = [300, 66, 150, 250];
+const PROD_EXP = [300, 300, 300, 300];
 
 // ── Quadros padrão — Capacidade produtiva ────────────────────
 const QUADRO_CAP_SEP = [27, 17, 8, 11];
@@ -100,7 +100,48 @@ function diffTable(id, setores, d61, d52) {
     </tbody>`;
 }
 
-/* ── Render capacity table with editable quadro ──────────────── */
+/* ── Render expedição table — inclui coluna Veículos/dia ─────────
+   Veículos/dia = ROUNDUP( Meta/sem ÷ dias ÷ peças_por_veiculo )
+*/
+function renderExpTable(id, setores, data, dias, pecasVeiculo) {
+  const tot = k => data.reduce((a, b) => a + b[k], 0);
+  const totVeic = data.reduce((a, b) => a + b.veic, 0);
+  document.getElementById(id).innerHTML = `
+    <thead><tr>
+      <th>Setor</th><th>Meta/sem</th><th>Vol. pack</th>
+      <th>Média/dia</th><th>Quadro</th><th>Veículos/dia</th>
+    </tr></thead>
+    <tbody>
+      ${setores.map((s, i) => `
+        <tr>
+          <td>${s}</td>
+          <td>${fmt(data[i].meta)}</td>
+          <td>${fmt(data[i].vol)}</td>
+          <td>${fmt(data[i].med)}</td>
+          <td class="highlight">${fmt(data[i].qdr)}</td>
+          <td class="veic-col">${fmt(data[i].veic)}</td>
+        </tr>`).join("")}
+      <tr>
+        <td>Total</td>
+        <td>${fmt(tot("meta"))}</td>
+        <td>${fmt(tot("vol"))}</td>
+        <td>${fmt(tot("med"))}</td>
+        <td>${fmt(tot("qdr"))}</td>
+        <td class="veic-col">${fmt(totVeic)}</td>
+      </tr>
+    </tbody>`;
+}
+
+/* ── Build expedição block — igual ao buildBlock + veículos ───── */
+function buildExpBlock(meta, prod, usaPack, dias, pack, hProd, pecasVeiculo) {
+  return meta.map((m, i) => {
+    const vol  = usaPack[i] ? rup(m / pack) : m;
+    const med  = rup(vol / dias);
+    const qdr  = rup(med / prod[i] / hProd);
+    const veic = pecasVeiculo > 0 ? rup(m / dias / pecasVeiculo) : 0;
+    return { meta: m, vol, med, qdr, veic };
+  });
+}
 function renderCapTable(id, prefix, setores, meta, quadroDefault, prod, usaPack, hProd, pack) {
   const already = !!document.getElementById(`cap-${prefix}-0`);
 
@@ -114,7 +155,7 @@ function renderCapTable(id, prefix, setores, meta, quadroDefault, prod, usaPack,
     const capDia = q * hProd * prod[i];
     const volSem = capDia * 5;
     const pecas  = usaPack[i] ? volSem * pack : volSem;
-    const diff   = pecas - meta[i];               // Peças/sem − Meta/sem
+    const diff   = pecas - meta[i];
     return { setor, q, capDia, volSem, pecas, diff, i };
   });
 
@@ -125,11 +166,11 @@ function renderCapTable(id, prefix, setores, meta, quadroDefault, prod, usaPack,
   const totDiff  = totPecas - totMeta;
   const totQ     = rows.reduce((a, r) => a + r.q, 0);
 
-  const diffCell = (diff, id) => {
+  const diffCell = (diff, cellId) => {
     const cls = diff > 0 ? "pos" : diff < 0 ? "neg" : "";
     const val = `${diff > 0 ? "+" : ""}${fmt(diff)}`;
-    return id
-      ? `<td class="${cls}" id="${id}">${val}</td>`
+    return cellId
+      ? `<td class="${cls}" id="${cellId}">${val}</td>`
       : `<td class="${cls}">${val}</td>`;
   };
 
@@ -173,27 +214,123 @@ function renderCapTable(id, prefix, setores, meta, quadroDefault, prod, usaPack,
     document.getElementById(`cap-dia-${prefix}-${r.i}`).textContent   = fmt(r.capDia);
     document.getElementById(`cap-vol-${prefix}-${r.i}`).textContent   = fmt(r.volSem);
     document.getElementById(`cap-pec-${prefix}-${r.i}`).textContent   = fmt(r.pecas);
-    const dc  = document.getElementById(`cap-diff-${prefix}-${r.i}`);
-    dc.textContent  = `${r.diff > 0 ? "+" : ""}${fmt(r.diff)}`;
-    dc.className    = r.diff > 0 ? "pos" : r.diff < 0 ? "neg" : "";
+    const dc = document.getElementById(`cap-diff-${prefix}-${r.i}`);
+    dc.textContent = `${r.diff > 0 ? "+" : ""}${fmt(r.diff)}`;
+    dc.className   = r.diff > 0 ? "pos" : r.diff < 0 ? "neg" : "";
   });
-  document.getElementById(`cap-tot-q-${prefix}`).textContent     = fmt(totQ);
-  document.getElementById(`cap-tot-dia-${prefix}`).textContent   = fmt(totCap);
-  document.getElementById(`cap-tot-vol-${prefix}`).textContent   = fmt(totVol);
-  document.getElementById(`cap-tot-pec-${prefix}`).textContent   = fmt(totPecas);
+  document.getElementById(`cap-tot-q-${prefix}`).textContent   = fmt(totQ);
+  document.getElementById(`cap-tot-dia-${prefix}`).textContent = fmt(totCap);
+  document.getElementById(`cap-tot-vol-${prefix}`).textContent = fmt(totVol);
+  document.getElementById(`cap-tot-pec-${prefix}`).textContent = fmt(totPecas);
   const td = document.getElementById(`cap-tot-diff-${prefix}`);
   td.textContent = `${totDiff > 0 ? "+" : ""}${fmt(totDiff)}`;
   td.className   = totDiff > 0 ? "pos" : totDiff < 0 ? "neg" : "";
 }
 
+/* ── Render capacity table para Expedição — com coluna Veículos/dia
+   Veículos/dia = ROUNDUP( Peças/sem ÷ 5 dias ÷ peças_por_veiculo )
+   Usa as peças/sem calculadas pelo quadro editável (não a meta)
+*/
+function renderCapExpTable(id, prefix, setores, meta, quadroDefault, prod, usaPack, hProd, pack, pecasVeiculo) {
+  const already = !!document.getElementById(`cap-${prefix}-0`);
+
+  const quadros = setores.map((_, i) => {
+    const el = document.getElementById(`cap-${prefix}-${i}`);
+    return el ? (parseInt(el.value) || 0) : quadroDefault[i];
+  });
+
+  const rows = setores.map((setor, i) => {
+    const q      = quadros[i];
+    const capDia = q * hProd * prod[i];
+    const volSem = capDia * 5;
+    const pecas  = usaPack[i] ? volSem * pack : volSem;
+    const diff   = pecas - meta[i];
+    const veic   = pecasVeiculo > 0 ? rup(pecas / 5 / pecasVeiculo) : 0;
+    return { setor, q, capDia, volSem, pecas, diff, veic, i };
+  });
+
+  const totCap   = rows.reduce((a, r) => a + r.capDia, 0);
+  const totVol   = rows.reduce((a, r) => a + r.volSem, 0);
+  const totPecas = rows.reduce((a, r) => a + r.pecas, 0);
+  const totMeta  = meta.reduce((a, m) => a + m, 0);
+  const totDiff  = totPecas - totMeta;
+  const totQ     = rows.reduce((a, r) => a + r.q, 0);
+  const totVeic  = rows.reduce((a, r) => a + r.veic, 0);
+
+  const diffCell = (diff, cellId) => {
+    const cls = diff > 0 ? "pos" : diff < 0 ? "neg" : "";
+    const val = `${diff > 0 ? "+" : ""}${fmt(diff)}`;
+    return cellId
+      ? `<td class="${cls}" id="${cellId}">${val}</td>`
+      : `<td class="${cls}">${val}</td>`;
+  };
+
+  if (!already) {
+    document.getElementById(id).innerHTML = `
+      <table>
+        <thead><tr>
+          <th>Setor</th><th>Quadro</th><th>H. produtivas</th>
+          <th>Cap. diária</th><th>Vol. semanal</th><th>Peças/sem</th>
+          <th>vs Meta</th><th>Veículos/dia</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td>${r.setor}</td>
+              <td><input class="cap-input" id="cap-${prefix}-${r.i}"
+                type="number" value="${r.q}" min="0" max="200" step="1"
+                oninput="recalcCap()"></td>
+              <td id="cap-hprod-${prefix}-${r.i}">${fmth(hProd)}</td>
+              <td id="cap-dia-${prefix}-${r.i}">${fmt(r.capDia)}</td>
+              <td id="cap-vol-${prefix}-${r.i}">${fmt(r.volSem)}</td>
+              <td class="highlight" id="cap-pec-${prefix}-${r.i}">${fmt(r.pecas)}</td>
+              ${diffCell(r.diff, `cap-diff-${prefix}-${r.i}`)}
+              <td class="veic-col" id="cap-veic-${prefix}-${r.i}">${r.veic > 0 ? fmt(r.veic) : "—"}</td>
+            </tr>`).join("")}
+          <tr>
+            <td>Total</td>
+            <td id="cap-tot-q-${prefix}">${fmt(totQ)}</td>
+            <td>—</td>
+            <td id="cap-tot-dia-${prefix}">${fmt(totCap)}</td>
+            <td id="cap-tot-vol-${prefix}">${fmt(totVol)}</td>
+            <td id="cap-tot-pec-${prefix}">${fmt(totPecas)}</td>
+            ${diffCell(totDiff, `cap-tot-diff-${prefix}`)}
+            <td class="veic-col" id="cap-tot-veic-${prefix}">${totVeic > 0 ? fmt(totVeic) : "—"}</td>
+          </tr>
+        </tbody>
+      </table>`;
+    return;
+  }
+
+  rows.forEach(r => {
+    document.getElementById(`cap-hprod-${prefix}-${r.i}`).textContent = fmth(hProd);
+    document.getElementById(`cap-dia-${prefix}-${r.i}`).textContent   = fmt(r.capDia);
+    document.getElementById(`cap-vol-${prefix}-${r.i}`).textContent   = fmt(r.volSem);
+    document.getElementById(`cap-pec-${prefix}-${r.i}`).textContent   = fmt(r.pecas);
+    const dc = document.getElementById(`cap-diff-${prefix}-${r.i}`);
+    dc.textContent = `${r.diff > 0 ? "+" : ""}${fmt(r.diff)}`;
+    dc.className   = r.diff > 0 ? "pos" : r.diff < 0 ? "neg" : "";
+    document.getElementById(`cap-veic-${prefix}-${r.i}`).textContent = r.veic > 0 ? fmt(r.veic) : "—";
+  });
+  document.getElementById(`cap-tot-q-${prefix}`).textContent    = fmt(totQ);
+  document.getElementById(`cap-tot-dia-${prefix}`).textContent  = fmt(totCap);
+  document.getElementById(`cap-tot-vol-${prefix}`).textContent  = fmt(totVol);
+  document.getElementById(`cap-tot-pec-${prefix}`).textContent  = fmt(totPecas);
+  const td = document.getElementById(`cap-tot-diff-${prefix}`);
+  td.textContent = `${totDiff > 0 ? "+" : ""}${fmt(totDiff)}`;
+  td.className   = totDiff > 0 ? "pos" : totDiff < 0 ? "neg" : "";
+  document.getElementById(`cap-tot-veic-${prefix}`).textContent = totVeic > 0 ? fmt(totVeic) : "—";
+}
+
 /* ── Recalc capacity only (triggered by quadro inputs) ────────── */
 function recalcCap() {
-  const carga = parseFloat(document.getElementById("in-carga").value) || 40;
-  const pack  = parseFloat(document.getElementById("in-pack").value)  || 7.2;
-  const hProd = (carga / 5) - 1.8;
-  renderCapTable("cap-sep", "sep", SETORES_SEP, META_SEP_52, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, pack);
-  renderCapTable("cap-rec", "rec", SETORES_REC, META_REC_52, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, pack);
-  renderCapTable("cap-exp", "exp", SETORES_EXP, META_EXP_52, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, pack);
+  const carga       = parseFloat(document.getElementById("in-carga").value)        || 40;
+  const pack        = parseFloat(document.getElementById("in-pack").value)         || 7.2;
+  const pecasVeic   = parseFloat(document.getElementById("in-pecas-veiculo").value) || 0;
+  const hProd       = (carga / 5) - 1.8;
+  renderCapTable   ("cap-sep", "sep", SETORES_SEP, META_SEP_52, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, pack);
+  renderCapTable   ("cap-rec", "rec", SETORES_REC, META_REC_52, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, pack);
+  renderCapExpTable("cap-exp", "exp", SETORES_EXP, META_EXP_52, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, pack, pecasVeic);
   renderBars(hProd, pack);
 }
 
@@ -231,7 +368,6 @@ function renderSched(carga, modelo) {
   ["Equipe 1", "Equipe 2"].forEach((eq, ei) => {
     html += `<div class="sched-label">${eq}</div>`;
     (ei === 0 ? eq1 : eq2).forEach((v, di) => {
-      // Sáb (di=5) e Dom (di=6) sem trabalho → sempre cinza (weekend)
       const cls = v ? "sched-cell on" : (di >= 5 ? "sched-cell weekend" : "sched-cell off-day");
       html += `<div class="${cls}">${v ? fmth(carga / 5) : "—"}</div>`;
     });
@@ -307,25 +443,27 @@ function recalc() {
 
   const s61 = buildBlock(META_SEP_61, PROD_SEP, USA_PACK_SEP, 6, pack, 6);
   const r61 = buildBlock(META_REC_61, PROD_REC, USA_PACK_REC, 6, pack, 6);
-  const e61 = buildBlock(META_EXP_61, PROD_EXP, USA_PACK_EXP, 6, pack, 6);
   const s52 = buildBlock(META_SEP_52, PROD_SEP, USA_PACK_SEP, 5, pack, hProd);
   const r52 = buildBlock(META_REC_52, PROD_REC, USA_PACK_REC, 5, pack, hProd);
-  const e52 = buildBlock(META_EXP_52, PROD_EXP, USA_PACK_EXP, 5, pack, hProd);
+
+  const pecasVeiculo = parseFloat(document.getElementById("in-pecas-veiculo").value) || 0;
+  const e61 = buildExpBlock(META_EXP_61, PROD_EXP, USA_PACK_EXP, 6, pack, 6,     pecasVeiculo);
+  const e52 = buildExpBlock(META_EXP_52, PROD_EXP, USA_PACK_EXP, 5, pack, hProd, pecasVeiculo);
 
   renderTable("tbl-sep-61", SETORES_SEP, s61);
   renderTable("tbl-sep-52", SETORES_SEP, s52);
   renderTable("tbl-rec-61", SETORES_REC, r61);
   renderTable("tbl-rec-52", SETORES_REC, r52);
-  renderTable("tbl-exp-61", SETORES_EXP, e61);
-  renderTable("tbl-exp-52", SETORES_EXP, e52);
+  renderExpTable("tbl-exp-61", SETORES_EXP, e61, 6,     pecasVeiculo);
+  renderExpTable("tbl-exp-52", SETORES_EXP, e52, 5,     pecasVeiculo);
 
   diffTable("tbl-diff-sep", SETORES_SEP, s61, s52);
   diffTable("tbl-diff-rec", SETORES_REC, r61, r52);
   diffTable("tbl-diff-exp", SETORES_EXP, e61, e52);
 
-  renderCapTable("cap-sep", "sep", SETORES_SEP, META_SEP_52, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, pack);
-  renderCapTable("cap-rec", "rec", SETORES_REC, META_REC_52, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, pack);
-  renderCapTable("cap-exp", "exp", SETORES_EXP, META_EXP_52, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, pack);
+  renderCapTable   ("cap-sep", "sep", SETORES_SEP, META_SEP_52, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, pack);
+  renderCapTable   ("cap-rec", "rec", SETORES_REC, META_REC_52, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, pack);
+  renderCapExpTable("cap-exp", "exp", SETORES_EXP, META_EXP_52, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, pack, pecasVeiculo);
   renderBars(hProd, pack);
 
   renderKPIs(s61, s52, r61, r52, e61, e52);

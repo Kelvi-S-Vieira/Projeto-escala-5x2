@@ -118,6 +118,17 @@
        ════════════════════════════════════════ -->
   <div class="area-label">🚚 Expedição</div>
 
+  <!-- Input peças por veículo -->
+  <div class="exp-veiculo-bar">
+    <div class="exp-veiculo-card">
+      <div class="ctrl-label">Peças por veículo</div>
+      <div class="ctrl-sub">Capacidade de carga por viagem</div>
+    </div>
+    <input class="ctrl-input exp-veiculo-input" type="number" id="in-pecas-veiculo"
+      placeholder="Ex: 5000" min="1" step="1" oninput="recalc()">
+    <div class="exp-veiculo-hint">← Edite para calcular Veículos/dia nas tabelas abaixo</div>
+  </div>
+
   <div class="grid2">
     <div class="section">
       <div class="sec-header blue"><span class="dot"></span> Expedição — 6×1</div>
