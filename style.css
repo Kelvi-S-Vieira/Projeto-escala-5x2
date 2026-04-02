@@ -186,6 +186,85 @@ body {
   gap: 7px;
 }
 
+/* ── Pack médio por setor ── */
+.pack-panel {
+  background: #fff;
+  border: 1px solid #E0E6EF;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+}
+
+.pack-panel-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1B3A6B;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #E0E6EF;
+}
+
+.pack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.pack-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #7B8FA1;
+  margin-bottom: 8px;
+}
+
+.pack-group-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pack-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pack-input-row span {
+  font-size: 11px;
+  color: #3D4A5C;
+  flex: 1;
+}
+
+.pack-input {
+  width: 72px;
+  border: 1px solid #CBD5E0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #854F0B;
+  background: #FFF3CD;
+  text-align: center;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.pack-input:focus { border-color: #F4A500; }
+
+.pack-input:disabled {
+  background: #F7FAFC;
+  color: #CBD5E0;
+  border-color: #E0E6EF;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .pack-grid { grid-template-columns: 1fr; }
+}
+
 /* ── Area label divider ── */
 .area-label {
   font-size: 13px;

@@ -38,10 +38,12 @@ function fmth(v) { return v.toFixed(1).replace(".", ",") + " h"; }
 /* ── Build simulation block ────────────────────────────────────
    Quadro = ROUNDUP( Média diária ÷ Produtividade ÷ hProd )
    6×1: hProd fixo = 6  |  5×2: hProd = carga/5 − 1,8
+   pack: array com pack médio por setor (ou número único)
 */
 function buildBlock(meta, prod, usaPack, dias, pack, hProd) {
   return meta.map((m, i) => {
-    const vol = usaPack[i] ? rup(m / pack) : m;
+    const p   = Array.isArray(pack) ? (pack[i] || 1) : pack;
+    const vol = usaPack[i] ? rup(m / p) : m;
     const med = rup(vol / dias);
     const qdr = rup(med / prod[i] / hProd);
     return { meta: m, vol, med, qdr };
@@ -135,7 +137,8 @@ function renderExpTable(id, setores, data, dias, pecasVeiculo) {
 /* ── Build expedição block — igual ao buildBlock + veículos ───── */
 function buildExpBlock(meta, prod, usaPack, dias, pack, hProd, pecasVeiculo) {
   return meta.map((m, i) => {
-    const vol  = usaPack[i] ? rup(m / pack) : m;
+    const p    = Array.isArray(pack) ? (pack[i] || 1) : pack;
+    const vol  = usaPack[i] ? rup(m / p) : m;
     const med  = rup(vol / dias);
     const qdr  = rup(med / prod[i] / hProd);
     const veic = pecasVeiculo > 0 ? rup(m / dias / pecasVeiculo) : 0;
@@ -152,9 +155,10 @@ function renderCapTable(id, prefix, setores, meta, quadroDefault, prod, usaPack,
 
   const rows = setores.map((setor, i) => {
     const q      = quadros[i];
+    const p      = Array.isArray(pack) ? (pack[i] || 1) : pack;
     const capDia = q * hProd * prod[i];
     const volSem = capDia * 5;
-    const pecas  = usaPack[i] ? volSem * pack : volSem;
+    const pecas  = usaPack[i] ? volSem * p : volSem;
     const diff   = pecas - meta[i];
     return { setor, q, capDia, volSem, pecas, diff, i };
   });
@@ -243,7 +247,8 @@ function renderCapExpTable(id, prefix, setores, meta, quadroDefault, prod, usaPa
     const q      = quadros[i];
     const capDia = q * hProd * prod[i];
     const volSem = capDia * 5;
-    const pecas  = usaPack[i] ? volSem * pack : volSem;
+    const p      = Array.isArray(pack) ? (pack[i] || 1) : pack;
+    const pecas  = usaPack[i] ? volSem * p : volSem;
     const diff   = pecas - meta[i];
     const veic   = pecasVeiculo > 0 ? rup(pecas / 5 / pecasVeiculo) : 0;
     return { setor, q, capDia, volSem, pecas, diff, veic, i };
@@ -324,14 +329,16 @@ function renderCapExpTable(id, prefix, setores, meta, quadroDefault, prod, usaPa
 
 /* ── Recalc capacity only (triggered by quadro inputs) ────────── */
 function recalcCap() {
-  const carga       = parseFloat(document.getElementById("in-carga").value)        || 40;
-  const pack        = parseFloat(document.getElementById("in-pack").value)         || 7.2;
-  const pecasVeic   = parseFloat(document.getElementById("in-pecas-veiculo").value) || 0;
-  const hProd       = (carga / 5) - 1.8;
-  renderCapTable   ("cap-sep", "sep", SETORES_SEP, META_SEP_52, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, pack);
-  renderCapTable   ("cap-rec", "rec", SETORES_REC, META_REC_52, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, pack);
-  renderCapExpTable("cap-exp", "exp", SETORES_EXP, META_EXP_52, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, pack, pecasVeic);
-  renderBars(hProd, pack);
+  const carga     = parseFloat(document.getElementById("in-carga").value) || 40;
+  const pecasVeic = parseFloat(document.getElementById("in-pecas-veiculo").value) || 0;
+  const hProd     = (carga / 5) - 1.8;
+  const packSep   = SETORES_SEP.map((_, i) => parseFloat(document.getElementById(`in-pack-sep-${i}`).value) || 7.2);
+  const packRec   = SETORES_REC.map((_, i) => parseFloat(document.getElementById(`in-pack-rec-${i}`).value) || 7.2);
+  const packExp   = SETORES_EXP.map((_, i) => parseFloat(document.getElementById(`in-pack-exp-${i}`).value) || 7.2);
+  renderCapTable   ("cap-sep", "sep", SETORES_SEP, META_SEP_52, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, packSep);
+  renderCapTable   ("cap-rec", "rec", SETORES_REC, META_REC_52, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, packRec);
+  renderCapExpTable("cap-exp", "exp", SETORES_EXP, META_EXP_52, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, packExp, pecasVeic);
+  renderBars(hProd, packSep);
 }
 
 /* ── Render distribution bar chart (Separação) ───────────────── */
@@ -340,7 +347,8 @@ function renderBars(hProd, pack) {
   const cap = SETORES_SEP.map((setor, i) => {
     const el  = document.getElementById(`cap-sep-${i}`);
     const q   = el ? (parseInt(el.value) || QUADRO_CAP_SEP[i]) : QUADRO_CAP_SEP[i];
-    const pec = q * hProd * PROD_SEP[i] * 5 * (USA_PACK_SEP[i] ? pack : 1);
+    const p   = Array.isArray(pack) ? (pack[i] || 1) : pack;
+    const pec = q * hProd * PROD_SEP[i] * 5 * (USA_PACK_SEP[i] ? p : 1);
     return { setor, q, pecas: pec, color: colors[i] };
   });
   const maxP = Math.max(...cap.map(d => d.pecas));
@@ -431,24 +439,27 @@ function renderProdPanel() {
 /* ── Main recalc ─────────────────────────────────────────────── */
 function recalc() {
   const carga  = parseFloat(document.getElementById("in-carga").value) || 40;
-  const pack   = parseFloat(document.getElementById("in-pack").value)  || 7.2;
   const modelo = document.getElementById("in-modelo").value;
   const hProd  = (carga / 5) - 1.8;
 
+  // Pack por setor — lê cada input individualmente
+  const packSep = SETORES_SEP.map((_, i) => parseFloat(document.getElementById(`in-pack-sep-${i}`).value) || 7.2);
+  const packRec = SETORES_REC.map((_, i) => parseFloat(document.getElementById(`in-pack-rec-${i}`).value) || 7.2);
+  const packExp = SETORES_EXP.map((_, i) => parseFloat(document.getElementById(`in-pack-exp-${i}`).value) || 7.2);
+
   document.getElementById("cv-carga").textContent  = carga + " h";
-  document.getElementById("cv-pack").textContent   = pack.toFixed(1).replace(".", ",");
   document.getElementById("cv-hprod").textContent  = fmth(hProd);
   document.getElementById("cv-modelo").textContent = modelo === "Segunda a Sexta" ? "Seg–Sex" : "Revezando";
   document.getElementById("modelo-badge").textContent = modelo;
 
-  const s61 = buildBlock(META_SEP_61, PROD_SEP, USA_PACK_SEP, 6, pack, 6);
-  const r61 = buildBlock(META_REC_61, PROD_REC, USA_PACK_REC, 6, pack, 6);
-  const s52 = buildBlock(META_SEP_52, PROD_SEP, USA_PACK_SEP, 5, pack, hProd);
-  const r52 = buildBlock(META_REC_52, PROD_REC, USA_PACK_REC, 5, pack, hProd);
+  const s61 = buildBlock(META_SEP_61, PROD_SEP, USA_PACK_SEP, 6, packSep, 6);
+  const r61 = buildBlock(META_REC_61, PROD_REC, USA_PACK_REC, 6, packRec, 6);
+  const s52 = buildBlock(META_SEP_52, PROD_SEP, USA_PACK_SEP, 5, packSep, hProd);
+  const r52 = buildBlock(META_REC_52, PROD_REC, USA_PACK_REC, 5, packRec, hProd);
 
   const pecasVeiculo = parseFloat(document.getElementById("in-pecas-veiculo").value) || 0;
-  const e61 = buildExpBlock(META_EXP_61, PROD_EXP, USA_PACK_EXP, 6, pack, 6,     pecasVeiculo);
-  const e52 = buildExpBlock(META_EXP_52, PROD_EXP, USA_PACK_EXP, 5, pack, hProd, pecasVeiculo);
+  const e61 = buildExpBlock(META_EXP_61, PROD_EXP, USA_PACK_EXP, 6, packExp, 6,     pecasVeiculo);
+  const e52 = buildExpBlock(META_EXP_52, PROD_EXP, USA_PACK_EXP, 5, packExp, hProd, pecasVeiculo);
 
   renderTable("tbl-sep-61", SETORES_SEP, s61);
   renderTable("tbl-sep-52", SETORES_SEP, s52);
@@ -461,10 +472,10 @@ function recalc() {
   diffTable("tbl-diff-rec", SETORES_REC, r61, r52);
   diffTable("tbl-diff-exp", SETORES_EXP, e61, e52);
 
-  renderCapTable   ("cap-sep", "sep", SETORES_SEP, META_SEP_52, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, pack);
-  renderCapTable   ("cap-rec", "rec", SETORES_REC, META_REC_52, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, pack);
-  renderCapExpTable("cap-exp", "exp", SETORES_EXP, META_EXP_52, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, pack, pecasVeiculo);
-  renderBars(hProd, pack);
+  renderCapTable   ("cap-sep", "sep", SETORES_SEP, META_SEP_52, QUADRO_CAP_SEP, PROD_SEP, USA_PACK_SEP, hProd, packSep);
+  renderCapTable   ("cap-rec", "rec", SETORES_REC, META_REC_52, QUADRO_CAP_REC, PROD_REC, USA_PACK_REC, hProd, packRec);
+  renderCapExpTable("cap-exp", "exp", SETORES_EXP, META_EXP_52, QUADRO_CAP_EXP, PROD_EXP, USA_PACK_EXP, hProd, packExp, pecasVeiculo);
+  renderBars(hProd, packSep);
 
   renderKPIs(s61, s52, r61, r52, e61, e52);
   renderProdPanel();
