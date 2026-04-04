@@ -123,6 +123,19 @@
        ════════════════════════════════════════ -->
   <div class="area-label">📥 Recebimento</div>
 
+  <!-- Painel de embalagem por semana -->
+  <div class="emb-panel">
+    <div class="emb-panel-header">
+      <div class="emb-panel-title">🎁 Representatividade de Embalagem por Semana</div>
+      <div class="emb-semana-selector">
+        <label class="ctrl-label" style="margin:0">Semana de referência:</label>
+        <select class="ctrl-input emb-semana-select" id="in-semana-rec" onchange="recalc()" style="width:90px;margin-top:0">
+        </select>
+      </div>
+    </div>
+    <div class="emb-grid" id="emb-grid"></div>
+  </div>
+
   <div class="grid2">
     <div class="section">
       <div class="sec-header blue"><span class="dot"></span> Recebimento — 6×1</div>
@@ -143,6 +156,12 @@
       <div class="sec-header rec">🏭 Capacidade produtiva 5×2 — Recebimento</div>
       <div id="cap-rec" style="padding:4px 0"></div>
     </div>
+  </div>
+
+  <!-- Distribuição de embalagem por setor -->
+  <div class="section" style="margin-bottom:12px">
+    <div class="sec-header rec">📊 Distribuição por embalagem — Recebimento (semana <span id="emb-semana-display">—</span>)</div>
+    <div id="emb-breakdown" style="padding:14px"></div>
   </div>
 
   <!-- ════════════════════════════════════════
