@@ -665,3 +665,108 @@ tbody tr:last-child td.veic-col {
     gap: 10px;
   }
 }
+
+/* ── Meta editável panel ── */
+.meta-panel {
+  background: #fff;
+  border: 1px solid #E0E6EF;
+  border-left: 4px solid #2E5FA3;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+}
+
+.meta-panel-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1B3A6B;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #E0E6EF;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.meta-group { }
+
+.meta-input {
+  width: 110px;
+  border: 1px solid #CBD5E0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1B3A6B;
+  background: #EEF2F9;
+  text-align: right;
+  outline: none;
+  flex-shrink: 0;
+}
+.meta-input:focus { border-color: #2E5FA3; }
+
+/* ── Produtividade por embalagem panel ── */
+.prod-emb-panel {
+  background: #fff;
+  border: 1px solid #E0E6EF;
+  border-left: 4px solid #0F6E56;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+}
+
+.prod-emb-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1B3A6B;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #E0E6EF;
+}
+
+.prod-emb-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 600px;
+}
+
+.prod-emb-group { }
+
+.prod-emb-input {
+  width: 80px;
+  border: 1px solid #CBD5E0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0F6E56;
+  background: #D4EDDA;
+  text-align: center;
+  outline: none;
+  flex-shrink: 0;
+}
+.prod-emb-input:focus { border-color: #0F6E56; }
+
+/* ── Veículos por dia input ── */
+.veic-day-input {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 5px;
+  padding: 3px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0C447C;
+  background: #fff;
+  text-align: center;
+  outline: none;
+}
+.veic-day-input:focus { border-color: #F4A500; background: #FFF3CD; }
+
+@media (max-width: 768px) {
+  .meta-grid    { grid-template-columns: 1fr; }
+  .prod-emb-grid{ grid-template-columns: 1fr; }
+}
