@@ -770,3 +770,117 @@ tbody tr:last-child td.veic-col {
   .meta-grid    { grid-template-columns: 1fr; }
   .prod-emb-grid{ grid-template-columns: 1fr; }
 }
+
+/* ── Totalizador ── */
+.totalizador-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: #fff;
+  border: 2px solid #1B3A6B;
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin-bottom: 16px;
+}
+
+.tot-card {
+  text-align: center;
+  padding: 12px 28px;
+  border-radius: 10px;
+  min-width: 160px;
+}
+
+.tot-61 { background: #EEF2F9; border: 1px solid #CBD5E0; }
+.tot-52 { background: #1B3A6B; border: 1px solid #1B3A6B; }
+
+.tot-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #7B8FA1;
+  margin-bottom: 4px;
+}
+.tot-52 .tot-label { color: #a8c0e8; }
+
+.tot-val {
+  font-family: 'Syne', 'Segoe UI', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: #1B3A6B;
+  line-height: 1;
+}
+.tot-52 .tot-val { color: #F4A500; }
+
+.tot-sub  { font-size: 11px; color: #7B8FA1; margin-top: 3px; }
+.tot-delta { font-size: 12px; font-weight: 700; margin-top: 3px; }
+.tot-arrow { font-size: 24px; color: #CBD5E0; }
+
+/* ── Atividades manuais ── */
+.ativ-panel {
+  background: #fff;
+  border: 1px solid #E0E6EF;
+  border-left: 4px solid #854F0B;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+}
+
+.ativ-panel-header { margin-bottom: 12px; }
+.ativ-panel-title  { font-size: 12px; font-weight: 700; color: #1B3A6B; }
+.ativ-panel-sub    { font-size: 10px; color: #7B8FA1; margin-top: 2px; }
+
+.ativ-add-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-add-ativ {
+  background: #1B3A6B;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-add-ativ:hover { background: #2E5FA3; }
+
+.ativ-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 10px;
+  background: #F7FAFC;
+  border: 1px solid #E0E6EF;
+  border-radius: 7px;
+  margin-bottom: 6px;
+}
+
+.ativ-nome {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1B3A6B;
+  flex: 1;
+}
+
+.ativ-del {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.ativ-del:hover { background: #FEE2E2; }
+
+/* ── Veíc half highlight ── */
+.veic-half { background: #FFF3CD !important; color: #854F0B !important; border-color: #F4A500 !important; }

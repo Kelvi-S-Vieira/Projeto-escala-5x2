@@ -60,10 +60,10 @@
       <div class="pack-group">
         <div class="pack-group-label">Recebimento</div>
         <div class="pack-group-inputs">
-          <div class="pack-input-row"><span>Lar-Têxtil</span>      <input class="pack-input" id="in-pack-rec-0" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()"></div>
-          <div class="pack-input-row"><span>Vestuário</span>       <input class="pack-input" id="in-pack-rec-1" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()"></div>
+          <div class="pack-input-row"><span>Lar-Têxtil</span>       <input class="pack-input" id="in-pack-rec-0" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()"></div>
+          <div class="pack-input-row"><span>Vestuário</span>        <input class="pack-input" id="in-pack-rec-1" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()"></div>
           <div class="pack-input-row"><span>Eletro/Eletrônico</span><input class="pack-input" id="in-pack-rec-2" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()" disabled></div>
-          <div class="pack-input-row"><span>Beleza</span>          <input class="pack-input" id="in-pack-rec-3" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()" disabled></div>
+          <div class="pack-input-row"><span>Beleza</span>           <input class="pack-input" id="in-pack-rec-3" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()" disabled></div>
         </div>
       </div>
       <div class="pack-group">
@@ -78,11 +78,10 @@
     </div>
   </div>
 
-  <!-- ALTERAÇÃO 1 — Metas editáveis por área -->
+  <!-- ── Metas editáveis ── -->
   <div class="meta-panel">
     <div class="meta-panel-title">🎯 Meta semanal por setor (editável)</div>
     <div class="meta-grid">
-
       <div class="meta-group">
         <div class="pack-group-label">Separação</div>
         <div class="pack-group-inputs">
@@ -92,7 +91,6 @@
           <div class="pack-input-row"><span>Encabidados</span> <input class="meta-input" id="in-meta-sep-3" type="text" oninput="recalc()"></div>
         </div>
       </div>
-
       <div class="meta-group">
         <div class="pack-group-label">Recebimento</div>
         <div class="pack-group-inputs">
@@ -102,7 +100,6 @@
           <div class="pack-input-row"><span>Beleza</span>           <input class="meta-input" id="in-meta-rec-3" type="text" oninput="recalc()"></div>
         </div>
       </div>
-
       <div class="meta-group">
         <div class="pack-group-label">Expedição</div>
         <div class="pack-group-inputs">
@@ -112,34 +109,32 @@
           <div class="pack-input-row"><span>Encabidados</span> <input class="meta-input" id="in-meta-exp-3" type="text" oninput="recalc()"></div>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- ── Escala semanal ── -->
-  <div class="sched-section">
-    <div class="sec-header blue">Escala semanal das equipes</div>
-    <div class="sched-grid" id="sched"></div>
+  <!-- ── Produtividade por embalagem ── -->
+  <div class="prod-emb-panel">
+    <div class="prod-emb-title">⚡ Produtividade por embalagem — Recebimento (peças/operador/hora)</div>
+    <div class="prod-emb-grid">
+      <div class="prod-emb-group">
+        <div class="pack-group-label">Lar-Têxtil</div>
+        <div class="pack-group-inputs">
+          <div class="pack-input-row"><span>CAIXA</span>  <input class="prod-emb-input" id="prod-emb-lar-caixa"  type="number" value="778" min="1" step="1" oninput="recalc()"></div>
+          <div class="pack-input-row"><span>FARDO</span>  <input class="prod-emb-input" id="prod-emb-lar-fardo"  type="number" value="540" min="1" step="1" oninput="recalc()"></div>
+          <div class="pack-input-row"><span>PACOTE</span> <input class="prod-emb-input" id="prod-emb-lar-pacote" type="number" value="778" min="1" step="1" oninput="recalc()"></div>
+        </div>
+      </div>
+      <div class="prod-emb-group">
+        <div class="pack-group-label">Vestuário</div>
+        <div class="pack-group-inputs">
+          <div class="pack-input-row"><span>CABIDE</span> <input class="prod-emb-input" id="prod-emb-vest-cabide" type="number" value="1100" min="1" step="1" oninput="recalc()"></div>
+          <div class="pack-input-row"><span>CAIXA</span>  <input class="prod-emb-input" id="prod-emb-vest-caixa"  type="number" value="778"  min="1" step="1" oninput="recalc()"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- ── KPIs ── -->
-  <div class="kpi-row" id="kpi-row"></div>
-
-  <!-- SEPARAÇÃO -->
-  <div class="area-label">📦 Separação</div>
-  <div class="grid2">
-    <div class="section"><div class="sec-header blue"><span class="dot"></span> Separação — 6×1</div><table id="tbl-sep-61"></table></div>
-    <div class="section"><div class="sec-header teal"><span class="dot"></span> Separação — 5×2</div><table id="tbl-sep-52"></table></div>
-  </div>
-  <div class="grid2">
-    <div class="section"><div class="sec-header diff">⚖ Diferença 6×1 vs 5×2 — Separação</div><table id="tbl-diff-sep"></table></div>
-    <div class="section"><div class="sec-header blue">🏭 Capacidade produtiva 5×2 — Separação</div><div id="cap-sep" style="padding:4px 0"></div></div>
-  </div>
-
-  <!-- RECEBIMENTO -->
-  <div class="area-label">📥 Recebimento</div>
-
-  <!-- Painel embalagem por semana -->
+  <!-- ── Semana de referência (necessária para cálculos) ── -->
   <div class="emb-panel">
     <div class="emb-panel-header">
       <div class="emb-panel-title">🎁 Representatividade de Embalagem por Semana</div>
@@ -151,28 +146,32 @@
     <div class="emb-grid" id="emb-grid"></div>
   </div>
 
-  <!-- ALTERAÇÃO 3 — Produtividade por embalagem editável -->
-  <div class="prod-emb-panel">
-    <div class="prod-emb-title">⚡ Produtividade por embalagem — Recebimento (peças/operador/hora)</div>
-    <div class="prod-emb-grid">
-      <div class="prod-emb-group">
-        <div class="pack-group-label">Lar-Têxtil</div>
-        <div class="pack-group-inputs">
-          <div class="pack-input-row"><span>CAIXA</span>  <input class="prod-emb-input" id="prod-emb-lar-caixa"  type="number" value="778"  min="1" step="1" oninput="recalc()"></div>
-          <div class="pack-input-row"><span>FARDO</span>  <input class="prod-emb-input" id="prod-emb-lar-fardo"  type="number" value="1100" min="1" step="1" oninput="recalc()"></div>
-          <div class="pack-input-row"><span>PACOTE</span> <input class="prod-emb-input" id="prod-emb-lar-pacote" type="number" value="600"  min="1" step="1" oninput="recalc()"></div>
-        </div>
-      </div>
-      <div class="prod-emb-group">
-        <div class="pack-group-label">Vestuário</div>
-        <div class="pack-group-inputs">
-          <div class="pack-input-row"><span>CABIDE</span> <input class="prod-emb-input" id="prod-emb-vest-cabide" type="number" value="500"  min="1" step="1" oninput="recalc()"></div>
-          <div class="pack-input-row"><span>CAIXA</span>  <input class="prod-emb-input" id="prod-emb-vest-caixa"  type="number" value="1100" min="1" step="1" oninput="recalc()"></div>
-        </div>
-      </div>
-    </div>
+  <!-- ── Escala semanal ── -->
+  <div class="sched-section">
+    <div class="sec-header blue">Escala semanal das equipes</div>
+    <div class="sched-grid" id="sched"></div>
   </div>
 
+  <!-- ── KPIs ── -->
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <!-- ── Atividades manuais ── -->
+  <div class="ativ-panel">
+    <div class="ativ-panel-header">
+      <div class="ativ-panel-title">➕ Atividades manuais</div>
+      <div class="ativ-panel-sub">Cadastre atividades que não estão nos setores acima para somar ao totalizador</div>
+    </div>
+    <div class="ativ-add-row">
+      <input class="ctrl-input" type="text"   id="ativ-nome"      placeholder="Nome da atividade (ex: Devolução, Inventário...)" style="flex:1;margin-top:0">
+      <input class="cap-input"  type="number" id="ativ-q61-input" placeholder="Quadro 6×1" min="0" step="1" style="width:100px">
+      <input class="cap-input"  type="number" id="ativ-q52-input" placeholder="Quadro 5×2" min="0" step="1" style="width:100px">
+      <button class="btn-add-ativ" onclick="addAtividade()">+ Adicionar</button>
+    </div>
+    <div id="ativ-list"></div>
+  </div>
+
+  <!-- ════════════ RECEBIMENTO ════════════ -->
+  <div class="area-label">📥 Recebimento</div>
   <div class="grid2">
     <div class="section"><div class="sec-header blue"><span class="dot"></span> Recebimento — 6×1</div><table id="tbl-rec-61"></table></div>
     <div class="section"><div class="sec-header rec"><span class="dot"></span> Recebimento — 5×2</div><table id="tbl-rec-52"></table></div>
@@ -182,15 +181,19 @@
     <div class="section"><div class="sec-header rec">🏭 Capacidade produtiva 5×2 — Recebimento</div><div id="cap-rec" style="padding:4px 0"></div></div>
   </div>
 
-  <!-- Distribuição por embalagem com quadro -->
-  <div class="section" style="margin-bottom:12px">
-    <div class="sec-header rec">📊 Distribuição por embalagem — Recebimento (semana <span id="emb-semana-display">—</span>)</div>
-    <div id="emb-breakdown" style="padding:14px"></div>
+  <!-- ════════════ SEPARAÇÃO ════════════ -->
+  <div class="area-label">📦 Separação</div>
+  <div class="grid2">
+    <div class="section"><div class="sec-header blue"><span class="dot"></span> Separação — 6×1</div><table id="tbl-sep-61"></table></div>
+    <div class="section"><div class="sec-header teal"><span class="dot"></span> Separação — 5×2</div><table id="tbl-sep-52"></table></div>
+  </div>
+  <div class="grid2">
+    <div class="section"><div class="sec-header diff">⚖ Diferença 6×1 vs 5×2 — Separação</div><table id="tbl-diff-sep"></table></div>
+    <div class="section"><div class="sec-header blue">🏭 Capacidade produtiva 5×2 — Separação</div><div id="cap-sep" style="padding:4px 0"></div></div>
   </div>
 
-  <!-- EXPEDIÇÃO -->
+  <!-- ════════════ EXPEDIÇÃO ════════════ -->
   <div class="area-label">🚚 Expedição</div>
-
   <div class="exp-veiculo-bar">
     <div class="exp-veiculo-card">
       <div class="ctrl-label">Peças por veículo</div>
@@ -199,7 +202,6 @@
     <input class="ctrl-input exp-veiculo-input" type="number" id="in-pecas-veiculo" placeholder="Ex: 5000" min="1" step="1" oninput="recalc()">
     <div class="exp-veiculo-hint">← Edite para calcular Veículos/dia</div>
   </div>
-
   <div class="grid2">
     <div class="section"><div class="sec-header blue"><span class="dot"></span> Expedição — 6×1</div><table id="tbl-exp-61"></table></div>
     <div class="section"><div class="sec-header exp"><span class="dot"></span> Expedição — 5×2</div><table id="tbl-exp-52"></table></div>
@@ -208,12 +210,13 @@
     <div class="section"><div class="sec-header diff">⚖ Diferença 6×1 vs 5×2 — Expedição</div><table id="tbl-diff-exp"></table></div>
     <div class="section"><div class="sec-header exp">🏭 Capacidade produtiva 5×2 — Expedição</div><div id="cap-exp" style="padding:4px 0"></div></div>
   </div>
-
-  <!-- ALTERAÇÃO 2 — Escala de veículos por dia -->
   <div class="sched-section" style="margin-bottom:12px">
     <div class="sec-header exp">🚛 Escala de veículos por dia — Expedição (editável)</div>
     <div class="sched-grid" id="veic-sched-grid" style="font-size:11px"></div>
   </div>
+
+  <!-- ════════════ TOTALIZADOR (antes das prod/capacidade) ════════════ -->
+  <div class="totalizador-wrap" id="totalizador"></div>
 
   <!-- Gráfico barras -->
   <div class="chart-section">
