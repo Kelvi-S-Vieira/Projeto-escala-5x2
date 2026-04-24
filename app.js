@@ -586,7 +586,45 @@ function recalc() {
   renderKPIs(s61,s52,r61,r52,e61,e52,embQdr61,embQdr52);
 }
 
-document.addEventListener("DOMContentLoaded",()=>{ initSemanaSelector(); initMetaInputs(); recalc(); });
+document.addEventListener("DOMContentLoaded", () => {
+  initSemanaSelector();
+  initMetaInputs();
+  carregarSimulacao();   // tenta buscar do Sheets antes do primeiro recalc
+});
+
+function carregarSimulacao() {
+  fetch(SHEETS_URL)
+    .then(res => res.json())
+    .then(dados => {
+      if (dados.status !== "ok") { recalc(); return; }
+
+      // Carga horária
+      if (dados.carga) {
+        document.getElementById("in-carga").value = dados.carga;
+      }
+
+      // Modelo de trabalho
+      if (dados.modelo) {
+        document.getElementById("in-modelo").value = dados.modelo;
+      }
+
+      // Metas — chegam como "881191;141479;87258;942870"
+      const aplicarMetas = (prefixo, str) => {
+        if (!str) return;
+        str.split(";").forEach((val, i) => {
+          const el = document.getElementById(`in-meta-${prefixo}-${i}`);
+          if (el) el.value = val;
+        });
+      };
+
+      aplicarMetas("sep", dados.meta_sep);
+      aplicarMetas("rec", dados.meta_rec);
+      aplicarMetas("exp", dados.meta_exp);
+
+      recalc();
+    })
+    .catch(() => recalc()); // se falhar, carrega com defaults normalmente
+}
 
 /* ══════════════════════════════════════════════════════════════
    INTEGRAÇÃO GOOGLE SHEETS
