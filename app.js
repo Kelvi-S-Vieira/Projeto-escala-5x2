@@ -630,7 +630,7 @@ function carregarSimulacao() {
    INTEGRAÇÃO GOOGLE SHEETS
    ══════════════════════════════════════════════════════════════ */
 
-const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzrNMt5FkUuz08DevxzVIcblPNBBB0LMGCSAXdTlaF_Bvu7bEcPwWFl_kUJ2OtMynGHBw/exec";
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbz-utSHZ7nWRaXvXjiLvFVXUpX4SZjp3u8dkQnhUJlvPYrYUbjdDZ8c_hitYm8K0DQGWw/exec";
 
 function capturarDadosSimulacao() {
   const get = id => document.getElementById(id)?.value || "";
