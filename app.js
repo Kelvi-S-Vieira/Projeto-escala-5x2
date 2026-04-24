@@ -586,4 +586,37 @@ function recalc() {
   renderKPIs(s61,s52,r61,r52,e61,e52,embQdr61,embQdr52);
 }
 
+
 document.addEventListener("DOMContentLoaded",()=>{ initSemanaSelector(); initMetaInputs(); recalc(); });
+
+function capturarDadosSimulacao() {
+  return {
+    carga: document.getElementById("in-carga").value,
+    modelo: document.getElementById("in-modelo").value,
+
+    metas_sep: getMeta("sep", 4),
+    metas_rec: getMeta("rec", 4),
+    metas_exp: getMeta("exp", 4)
+  };
+}
+
+function salvarSimulacao() {
+  const dados = capturarDadosSimulacao();
+
+  fetch("https://script.google.com/macros/s/AKfycbzrNMt5FkUuz08DevxzVIcblPNBBB0LMGCSAXdTlaF_Bvu7bEcPwWFl_kUJ2OtMynGHBw/exec", {
+    method: "POST",
+    body: JSON.stringify(dados),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+  .then(() => {
+    alert("Simulação salva com sucesso!");
+  })
+  .catch(() => {
+    alert("Erro ao salvar.");
+  });
+}
+
+document.addEventListener("DOMContentLoaded",()=>{ initSemanaSelector(); initMetaInputs(); recalc(); });
+

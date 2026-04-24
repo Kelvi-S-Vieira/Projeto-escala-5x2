@@ -20,9 +20,12 @@
       <span class="badge orange">Interativo</span>
     </div>
   </div>
-
+  
   <!-- ── Controls ── -->
   <div class="controls">
+    <button onclick="salvarSimulacao()" class="btn-save">
+  💾 Salvar simulação
+                    </button>
     <div class="ctrl-card">
       <div class="ctrl-label">Carga semanal</div>
       <div class="ctrl-val" id="cv-carga">40 h</div>
@@ -41,6 +44,40 @@
         <option>Segunda a Sexta</option>
         <option>Equipes revezando</option>
       </select>
+    </div>
+  </div>
+  
+  <!-- ── Pack médio por setor ── -->
+  <div class="pack-panel">
+    <div class="pack-panel-title">📦 Pack médio por setor</div>
+    <div class="pack-grid">
+      <div class="pack-group">
+        <div class="pack-group-label">Separação</div>
+        <div class="pack-group-inputs">
+          <div class="pack-input-row"><span>Ilhas</span>       <input class="pack-input" id="in-pack-sep-0" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()"></div>
+          <div class="pack-input-row"><span>Ruas</span>        <input class="pack-input" id="in-pack-sep-1" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()"></div>
+          <div class="pack-input-row"><span>Restrita</span>    <input class="pack-input" id="in-pack-sep-2" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()" disabled></div>
+          <div class="pack-input-row"><span>Encabidados</span> <input class="pack-input" id="in-pack-sep-3" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()"></div>
+        </div>
+      </div>
+      <div class="pack-group">
+        <div class="pack-group-label">Recebimento</div>
+        <div class="pack-group-inputs">
+          <div class="pack-input-row"><span>Lar-Têxtil</span>       <input class="pack-input" id="in-pack-rec-0" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()"></div>
+          <div class="pack-input-row"><span>Vestuário</span>        <input class="pack-input" id="in-pack-rec-1" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()"></div>
+          <div class="pack-input-row"><span>Eletro/Eletrônico</span><input class="pack-input" id="in-pack-rec-2" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()" disabled></div>
+          <div class="pack-input-row"><span>Beleza</span>           <input class="pack-input" id="in-pack-rec-3" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()" disabled></div>
+        </div>
+      </div>
+      <div class="pack-group">
+        <div class="pack-group-label">Expedição</div>
+        <div class="pack-group-inputs">
+          <div class="pack-input-row"><span>Ilhas</span>       <input class="pack-input" id="in-pack-exp-0" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()"></div>
+          <div class="pack-input-row"><span>Ruas</span>        <input class="pack-input" id="in-pack-exp-1" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()"></div>
+          <div class="pack-input-row"><span>Restrita</span>    <input class="pack-input" id="in-pack-exp-2" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()" disabled></div>
+          <div class="pack-input-row"><span>Encabidados</span> <input class="pack-input" id="in-pack-exp-3" type="number" value="7.2" min="0.1" step="0.1" oninput="recalc()"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -78,6 +115,8 @@
     </div>
   </div>
 
+=======
+>>>>>>> 2e1b098 (feat: integração com Google Sheets)
   <!-- ── Metas editáveis ── -->
   <div class="meta-panel">
     <div class="meta-panel-title">🎯 Meta semanal por setor (editável)</div>

@@ -10,6 +10,21 @@
   font-family: 'Segoe UI', Tahoma, sans-serif;
 }
 
+.btn-save {
+  background: #1B3A6B;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-save:hover {
+  background: #8b2236;
+}
+
 body {
   background: #F4F6FA;
   min-height: 100vh;
@@ -691,8 +706,6 @@ tbody tr:last-child td.veic-col {
   gap: 20px;
 }
 
-.meta-group { }
-
 .meta-input {
   width: 110px;
   border: 1px solid #CBD5E0;
@@ -733,8 +746,6 @@ tbody tr:last-child td.veic-col {
   gap: 20px;
   max-width: 600px;
 }
-
-.prod-emb-group { }
 
 .prod-emb-input {
   width: 80px;
@@ -883,4 +894,7 @@ tbody tr:last-child td.veic-col {
 .ativ-del:hover { background: #FEE2E2; }
 
 /* ── Veíc half highlight ── */
+
+.veic-half { background: #FFF3CD !important; color: #854F0B !important; border-color: #F4A500 !important; }
+
 .veic-half { background: #FFF3CD !important; color: #854F0B !important; border-color: #F4A500 !important; }
