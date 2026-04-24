@@ -586,37 +586,89 @@ function recalc() {
   renderKPIs(s61,s52,r61,r52,e61,e52,embQdr61,embQdr52);
 }
 
-
 document.addEventListener("DOMContentLoaded",()=>{ initSemanaSelector(); initMetaInputs(); recalc(); });
 
-function capturarDadosSimulacao() {
-  return {
-    carga: document.getElementById("in-carga").value,
-    modelo: document.getElementById("in-modelo").value,
+/* ══════════════════════════════════════════════════════════════
+   INTEGRAÇÃO GOOGLE SHEETS
+   ══════════════════════════════════════════════════════════════ */
 
-    metas_sep: getMeta("sep", 4),
-    metas_rec: getMeta("rec", 4),
-    metas_exp: getMeta("exp", 4)
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzrNMt5FkUuz08DevxzVIcblPNBBB0LMGCSAXdTlaF_Bvu7bEcPwWFl_kUJ2OtMynGHBw/exec";
+
+function capturarDadosSimulacao() {
+  const get = id => document.getElementById(id)?.value || "";
+
+  const atividades = [];
+  document.querySelectorAll(".ativ-row").forEach(r => {
+    atividades.push({
+      nome: r.querySelector(".ativ-nome")?.textContent || "",
+      q61:  r.querySelector(".ativ-q61")?.value || "0",
+      q52:  r.querySelector(".ativ-q52")?.value || "0",
+    });
+  });
+
+  const veicDias = [0,1,2,3,4,5,6].map(di => {
+    const el = document.getElementById(`veic-day-${di}`);
+    return el ? el.value : "";
+  });
+
+  return {
+    timestamp:    new Date().toISOString(),
+    carga:        get("in-carga"),
+    modelo:       get("in-modelo"),
+    semana_rec:   get("in-semana-rec"),
+    pecas_veiculo:get("in-pecas-veiculo"),
+
+    pack_sep:     [0,1,2,3].map(i=>get(`in-pack-sep-${i}`)).join(";"),
+    pack_rec:     [0,1,2,3].map(i=>get(`in-pack-rec-${i}`)).join(";"),
+    pack_exp:     [0,1,2,3].map(i=>get(`in-pack-exp-${i}`)).join(";"),
+
+    meta_sep:     [0,1,2,3].map(i=>get(`in-meta-sep-${i}`)).join(";"),
+    meta_rec:     [0,1,2,3].map(i=>get(`in-meta-rec-${i}`)).join(";"),
+    meta_exp:     [0,1,2,3].map(i=>get(`in-meta-exp-${i}`)).join(";"),
+
+    cap_sep:      [0,1,2,3].map(i=>get(`cap-sep-${i}`)).join(";"),
+    cap_rec:      [0,1,2,3].map(i=>get(`cap-rec-${i}`)).join(";"),
+    cap_exp:      [0,1,2,3].map(i=>get(`cap-exp-${i}`)).join(";"),
+
+    prod_emb_lar_caixa:   get("prod-emb-lar-caixa"),
+    prod_emb_lar_fardo:   get("prod-emb-lar-fardo"),
+    prod_emb_lar_pacote:  get("prod-emb-lar-pacote"),
+    prod_emb_vest_cabide: get("prod-emb-vest-cabide"),
+    prod_emb_vest_caixa:  get("prod-emb-vest-caixa"),
+
+    atividades:   JSON.stringify(atividades),
+    veic_dias:    veicDias.join(";"),
   };
 }
 
 function salvarSimulacao() {
-  const dados = capturarDadosSimulacao();
+  const btn    = document.querySelector(".btn-save");
+  const status = document.getElementById("save-status");
 
-  fetch("https://script.google.com/macros/s/AKfycbzrNMt5FkUuz08DevxzVIcblPNBBB0LMGCSAXdTlaF_Bvu7bEcPwWFl_kUJ2OtMynGHBw/exec", {
-    method: "POST",
-    body: JSON.stringify(dados),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
-  .then(() => {
-    alert("Simulação salva com sucesso!");
-  })
-  .catch(() => {
-    alert("Erro ao salvar.");
-  });
+  btn.disabled    = true;
+  btn.textContent = "⏳ Salvando...";
+  if (status) { status.textContent = ""; status.className = "save-status"; }
+
+  // Google Apps Script: envia como GET com query params + no-cors para evitar erro CORS
+  const params = new URLSearchParams(capturarDadosSimulacao());
+
+  fetch(`${SHEETS_URL}?${params.toString()}`, { method: "GET", mode: "no-cors" })
+    .then(() => {
+      btn.disabled    = false;
+      btn.textContent = "💾 Salvar";
+      if (status) {
+        status.textContent = "✅ Salvo com sucesso!";
+        status.className   = "save-status save-ok";
+        setTimeout(() => { status.textContent = ""; status.className = "save-status"; }, 4000);
+      }
+    })
+    .catch(err => {
+      btn.disabled    = false;
+      btn.textContent = "💾 Salvar";
+      if (status) {
+        status.textContent = "❌ Erro ao salvar";
+        status.className   = "save-status save-err";
+      }
+      console.error("Erro salvarSimulacao:", err);
+    });
 }
-
-document.addEventListener("DOMContentLoaded",()=>{ initSemanaSelector(); initMetaInputs(); recalc(); });
-
