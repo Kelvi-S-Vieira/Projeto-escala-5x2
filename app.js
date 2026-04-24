@@ -649,24 +649,41 @@ function salvarSimulacao() {
   btn.textContent = "⏳ Salvando...";
   if (status) { status.textContent = ""; status.className = "save-status"; }
 
-  // Google Apps Script: envia como GET com query params + no-cors para evitar erro CORS
-  const params = new URLSearchParams(capturarDadosSimulacao());
-
-  fetch(`${SHEETS_URL}?${params.toString()}`, { method: "GET", mode: "no-cors" })
-    .then(() => {
+  // Envia como POST com body JSON em texto puro.
+  // Content-Type "text/plain" evita o preflight CORS (OPTIONS) que bloqueia Apps Script.
+  // NÃO use mode:"no-cors" — ele torna a resposta opaca e esconde erros reais.
+  fetch(SHEETS_URL, {
+    method:  "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body:    JSON.stringify(capturarDadosSimulacao()),
+  })
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.text();
+    })
+    .then(text => {
+      // Apps Script deve responder com "OK" ou JSON {"status":"ok"}
+      const ok = text.trim().toUpperCase().startsWith("OK") ||
+                 (()=>{ try{ return JSON.parse(text).status==="ok"; }catch(e){ return false; } })();
       btn.disabled    = false;
       btn.textContent = "💾 Salvar";
       if (status) {
-        status.textContent = "✅ Salvo com sucesso!";
-        status.className   = "save-status save-ok";
-        setTimeout(() => { status.textContent = ""; status.className = "save-status"; }, 4000);
+        if (ok) {
+          status.textContent = "✅ Salvo com sucesso!";
+          status.className   = "save-status save-ok";
+          setTimeout(() => { status.textContent = ""; status.className = "save-status"; }, 4000);
+        } else {
+          status.textContent = `⚠️ Resposta inesperada: ${text.slice(0,80)}`;
+          status.className   = "save-status save-err";
+          console.warn("Resposta Apps Script:", text);
+        }
       }
     })
     .catch(err => {
       btn.disabled    = false;
       btn.textContent = "💾 Salvar";
       if (status) {
-        status.textContent = "❌ Erro ao salvar";
+        status.textContent = "❌ Erro ao salvar — veja o console (F12)";
         status.className   = "save-status save-err";
       }
       console.error("Erro salvarSimulacao:", err);
