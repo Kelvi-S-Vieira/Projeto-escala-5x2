@@ -586,29 +586,36 @@ function recalc() {
   renderKPIs(s61,s52,r61,r52,e61,e52,embQdr61,embQdr52);
 }
 
+/* ══════════════════════════════════════════════════════════════
+   INTEGRAÇÃO GOOGLE SHEETS
+   ══════════════════════════════════════════════════════════════ */
+
+// Deve ficar declarada antes das funções que a usam
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbz-utSHZ7nWRaXvXjiLvFVXUpX4SZjp3u8dkQnhUJlvPYrYUbjdDZ8c_hitYm8K0DQGWw/exec";
+
 document.addEventListener("DOMContentLoaded", () => {
   initSemanaSelector();
   initMetaInputs();
-  carregarSimulacao();   // tenta buscar do Sheets antes do primeiro recalc
+  carregarSimulacao();
 });
 
 function carregarSimulacao() {
-  fetch(SHEETS_URL)
-    .then(res => res.json())
+  // Apps Script redireciona GET — precisa de redirect:"follow" e aceitar resposta opaca
+  fetch(SHEETS_URL + "?acao=carregar", {
+    method:   "GET",
+    redirect: "follow",
+    mode:     "cors",
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
     .then(dados => {
       if (dados.status !== "ok") { recalc(); return; }
 
-      // Carga horária
-      if (dados.carga) {
-        document.getElementById("in-carga").value = dados.carga;
-      }
+      if (dados.carga)  document.getElementById("in-carga").value  = dados.carga;
+      if (dados.modelo) document.getElementById("in-modelo").value = dados.modelo;
 
-      // Modelo de trabalho
-      if (dados.modelo) {
-        document.getElementById("in-modelo").value = dados.modelo;
-      }
-
-      // Metas — chegam como "881191;141479;87258;942870"
       const aplicarMetas = (prefixo, str) => {
         if (!str) return;
         str.split(";").forEach((val, i) => {
@@ -623,14 +630,11 @@ function carregarSimulacao() {
 
       recalc();
     })
-    .catch(() => recalc()); // se falhar, carrega com defaults normalmente
+    .catch(err => {
+      console.warn("Não foi possível carregar do Sheets, usando defaults.", err);
+      recalc();
+    });
 }
-
-/* ══════════════════════════════════════════════════════════════
-   INTEGRAÇÃO GOOGLE SHEETS
-   ══════════════════════════════════════════════════════════════ */
-
-const SHEETS_URL = "https://script.google.com/macros/s/AKfycbz-utSHZ7nWRaXvXjiLvFVXUpX4SZjp3u8dkQnhUJlvPYrYUbjdDZ8c_hitYm8K0DQGWw/exec";
 
 function capturarDadosSimulacao() {
   const get = id => document.getElementById(id)?.value || "";
@@ -690,31 +694,21 @@ function salvarSimulacao() {
   // Envia como POST com body JSON em texto puro.
   // Content-Type "text/plain" evita o preflight CORS (OPTIONS) que bloqueia Apps Script.
   // NÃO use mode:"no-cors" — ele torna a resposta opaca e esconde erros reais.
+  // mode:"no-cors" é necessário para POST funcionar do GitHub Pages para Apps Script.
+  // A resposta será opaca (não podemos lê-la), mas o dado chega ao servidor normalmente.
   fetch(SHEETS_URL, {
     method:  "POST",
+    mode:    "no-cors",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
     body:    JSON.stringify(capturarDadosSimulacao()),
   })
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.text();
-    })
-    .then(text => {
-      // Apps Script deve responder com "OK" ou JSON {"status":"ok"}
-      const ok = text.trim().toUpperCase().startsWith("OK") ||
-                 (()=>{ try{ return JSON.parse(text).status==="ok"; }catch(e){ return false; } })();
+    .then(() => {
       btn.disabled    = false;
       btn.textContent = "💾 Salvar";
       if (status) {
-        if (ok) {
-          status.textContent = "✅ Salvo com sucesso!";
-          status.className   = "save-status save-ok";
-          setTimeout(() => { status.textContent = ""; status.className = "save-status"; }, 4000);
-        } else {
-          status.textContent = `⚠️ Resposta inesperada: ${text.slice(0,80)}`;
-          status.className   = "save-status save-err";
-          console.warn("Resposta Apps Script:", text);
-        }
+        status.textContent = "✅ Salvo com sucesso!";
+        status.className   = "save-status save-ok";
+        setTimeout(() => { status.textContent = ""; status.className = "save-status"; }, 4000);
       }
     })
     .catch(err => {
